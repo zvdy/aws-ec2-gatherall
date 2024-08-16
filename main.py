@@ -15,7 +15,7 @@ def get_instances_with_name_containing_apigee():
             instance_name = 'N/A'
             if 'Tags' in instance:
                 for tag in instance['Tags']:
-                    if tag['Key'] == 'Name' and '$FILTER' in tag['Value'].lower():
+                    if tag['Key'] == 'Name' and '$FILTER'  in tag['Value'].lower(): # Replace $FILTER with the keyword you want to search for or remove this condition to get all instances
                         instance_name = tag['Value']
                         break
 
@@ -37,13 +37,19 @@ def get_instances_with_name_containing_apigee():
                 volume = client.describe_volumes(VolumeIds=[volume_id])['Volumes'][0]
                 volume_details.append(f"Volume ID: {volume['VolumeId']}, Size: {volume['Size']} GiB, Type: {volume['VolumeType']}")
 
+            # Retrieve subnet CIDR block
+            subnet_cidr = 'N/A'
+            if subnet_id != 'N/A':
+                subnet = client.describe_subnets(SubnetIds=[subnet_id])['Subnets'][0]
+                subnet_cidr = subnet['CidrBlock']
+
             # Formatting output for readability
             print(f"Instance ID: {instance_id}")
             print(f"Instance Type: {instance_type}")
             print(f"Private IP: {private_ip}")
             print(f"Instance Name: {instance_name}")
             print(f"Region: {region}")
-            print(f"Subnet ID: {subnet_id}")
+            print(f"Subnet ID: {subnet_id} - {subnet_cidr}")
             print(f"VPC ID: {vpc_id}")
             print(f"Network Interfaces: {', '.join(network_interfaces)}")
             print(f"Attached Volume IDs: {', '.join(volume_ids)}")
