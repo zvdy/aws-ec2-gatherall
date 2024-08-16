@@ -1,48 +1,80 @@
-# AWS EC2 Instance Information Script 
 
-This Python script utilizes the `boto3` library to interact with AWS EC2 instances. It's designed to retrieve and display detailed information about EC2 instances that have a specific keyword in their name.
+# EC2 Instance Query CLI Tool
 
-## Features
+This CLI tool allows you to query AWS EC2 instances based on IP range and instance name using command-line arguments.
 
-- **List EC2 Instances**: Retrieves all running EC2 instances.
-- **Filter by Name**: Specifically looks for instances where the name contains a predefined keyword.
-- **Detailed Information**: Outputs detailed information about each filtered instance, including:
-  - Instance ID
-  - Instance Type
-  - Private IP
-  - Instance Name
-  - Region
-  - Subnet ID
-  - VPC ID
-  - Network Interfaces
-  - Attached Volume IDs
-  - Volume Details
-
-## Requirements
-
-To run this script, you'll need:
+## Prerequisites
 
 - Python 3.x
 - `boto3` library
 
 ## Installation
 
-1. Ensure Python 3.x is installed on your system.
-2. Install `boto3` using pip:
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/zvdy/aws-ec2-gatherall
+    cd aws-ec2-gatherall
+    ```
 
+2. **Install dependencies**:
+    ```bash
+    pip install boto3
+    ```
+
+## Usage
+
+### Query all running instances
+
+To query all running instances (with a warning):
 ```bash
-pip install boto3
+python main.py
 ```
 
-> As a best practice, you can use a [virtial environment](https://docs.python.org/3/library/venv.html)
+### Filter by IP range
 
-## Usage 
-To use the script, simply run:
+To filter instances by IP range:
+```bash
+python main.py --ip-range 192.168.1. 10.0.0.
+```
 
-Make sure you have configured your AWS credentials beforehand, as boto3 requires them to interact with your AWS resources.
+### Filter by name
 
-## Contributing 
-Contributions, issues, and feature requests are welcome!
+To filter instances by name:
+```bash
+python main.py --name apigee
+```
 
-## License 
-This project is open-source and available under the MIT License.
+### Filter by both IP range and name
+
+To filter instances by both IP range and name:
+```bash
+python main.py --ip-range 192.168.1. 10.0.0. --name apigee
+```
+
+## Example Output
+
+```
+Instance ID: i-1234567890abcdef0
+Instance Type: t2.micro
+Private IP: 192.168.1.10
+Instance Name: MyInstance
+Region: us-west-2a
+Subnet ID: subnet-12345678 - 192.168.1.0/24
+VPC ID: vpc-12345678
+Network Interfaces: eni-12345678
+Attached Volume IDs: vol-12345678
+Volume Details:
+  - Volume ID: vol-12345678, Size: 8 GiB, Type: gp2
+
+================================================================================
+```
+
+## Notes
+
+- Ensure you have the necessary AWS credentials configured. You can set up your credentials by running `aws configure` or by setting environment variables.
+- I recommend using a `venv` and/or run it on `aws cloudshell` directly.
+- The script will print a warning if no filters are provided and will query all running instances.
+
+## License
+
+This project is licensed under the MIT License.

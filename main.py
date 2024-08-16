@@ -1,31 +1,30 @@
 import boto3
+import argparse
 
-def get_instances_with_name_containing_apigee():
-    client = boto3.client('ec2')
+def get_instances(client, ip_list=None, name_filter=None):
+    filters = [{'Name': 'instance-state-name', 'Values': ['running']}]
 
-    # Retrieve all instances that are running
-    instances = client.describe_instances(
-        Filters=[
-            {'Name': 'instance-state-name', 'Values': ['running']}
-        ]
-    )
+    if name_filter:
+        filters.append({'Name': 'tag:Name', 'Values': [f"*{name_filter}*"]})
+
+    instances = client.describe_instances(Filters=filters)
 
     for reservation in instances['Reservations']:
         for instance in reservation['Instances']:
             instance_name = 'N/A'
             if 'Tags' in instance:
                 for tag in instance['Tags']:
-                    if tag['Key'] == 'Name' and '$FILTER'  in tag['Value'].lower(): # Replace $FILTER with the keyword you want to search for or remove this condition to get all instances
+                    if tag['Key'] == 'Name':
                         instance_name = tag['Value']
                         break
 
-            # Skip instances that do not contain "$FILTER" in their name
-            if instance_name == 'N/A':
-                continue
+            private_ip = instance.get('PrivateIpAddress', 'N/A')
+            if ip_list and private_ip != 'N/A':
+                if private_ip not in ip_list:
+                    continue
 
             instance_id = instance['InstanceId']
             instance_type = instance['InstanceType']
-            private_ip = instance.get('PrivateIpAddress', 'N/A')
             region = instance['Placement']['AvailabilityZone']
             subnet_id = instance.get('SubnetId', 'N/A')
             vpc_id = instance.get('VpcId', 'N/A')
@@ -58,5 +57,23 @@ def get_instances_with_name_containing_apigee():
                 print(f"  - {detail}")
             print("\n" + "="*80 + "\n")  # Separator for each instance
 
+def main():
+    parser = argparse.ArgumentParser(description="Retrieve EC2 instance information.")
+    parser.add_argument('--ip-list', help="Comma-separated list of IP addresses to filter instances by.")
+    parser.add_argument('--name', help="Filter instances by name containing this keyword.")
+    args = parser.parse_args()
+
+    ip_list = args.ip_list.split(',') if args.ip_list else None
+
+    if not ip_list and not args.name:
+        confirm = input("No filters provided. This will query all running instances. Do you want to continue? (y/n): ")
+        if confirm.lower() != 'y':
+            print("Operation cancelled.")
+            return
+
+    client = boto3.client('ec2')
+
+    get_instances(client, ip_list=ip_list, name_filter=args.name)
+
 if __name__ == "__main__":
-    get_instances_with_name_containing_apigee()
+    main()
