@@ -1,5 +1,6 @@
 
 # EC2 Instance Query CLI Tool
+![aws](https://img.shields.io/badge/Amazon_AWS-232F3E?style=flat&logo=amazon-web-services&logoColor=white) ![py](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
 
 This CLI tool allows you to query AWS EC2 instances based on IP range and instance name using command-line arguments.
 
