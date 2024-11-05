@@ -42,9 +42,16 @@ def get_instances(client, ip_list=None, name_filter=None):
                 subnet = client.describe_subnets(SubnetIds=[subnet_id])['Subnets'][0]
                 subnet_cidr = subnet['CidrBlock']
 
+            # Retrieve instance type details for memory and CPU
+            instance_type_details = client.describe_instance_types(InstanceTypes=[instance_type])['InstanceTypes'][0]
+            memory = instance_type_details['MemoryInfo']['SizeInMiB']
+            vcpus = instance_type_details['VCpuInfo']['DefaultVCpus']
+
             # Formatting output for readability
             print(f"Instance ID: {instance_id}")
             print(f"Instance Type: {instance_type}")
+            print(f"Memory: {memory} MiB")
+            print(f"vCPUs: {vcpus}")
             print(f"Private IP: {private_ip}")
             print(f"Instance Name: {instance_name}")
             print(f"Region: {region}")
